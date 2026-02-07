@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Salon de Beauté - Yimbaya, Conakry</title>
+    <meta
+      name="description"
+      content="Coiffure, vente de mèches et formations professionnelles à Yimbaya, Conakry. Prenez rendez-vous et découvrez nos publications photo et vidéo."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero" id="top">
+      <nav class="nav">
+        <div class="brand">
+          <span class="brand-mark">SB</span>
+          <div>
+            <div class="brand-name">Salon de Beauté</div>
+            <div class="brand-sub">Yimbaya • Conakry</div>
+          </div>
+        </div>
+        <div class="nav-links">
+          <a href="#services">Services</a>
+          <a href="#publications">Publications</a>
+          <a href="#formations">Formations</a>
+          <a href="#rendezvous">Rendez-vous</a>
+          <a href="#contact">Contact</a>
+        </div>
+      </nav>
+
+      <div class="hero-content">
+        <div>
+          <p class="eyebrow">Coiffure • Mèches • Formations</p>
+          <h1>Élégance naturelle, savoir-faire local.</h1>
+          <p class="lead">
+            Un salon moderne et traditionnel pour révéler votre style. Nous
+            coiffons, vendons des mèches de qualité et formons la nouvelle
+            génération de professionnelles.
+          </p>
+          <div class="cta-row">
+            <a class="btn primary" href="#rendezvous">Prendre rendez-vous</a>
+            <a
+              class="btn ghost"
+              href="https://wa.me/224625385342?text=Bonjour%20je%20souhaite%20prendre%20un%20rendez-vous."
+              target="_blank"
+              rel="noopener"
+              >WhatsApp</a
+            >
+          </div>
+          <div class="hero-tags">
+            <span>Yimbaya</span>
+            <span>Ouvert sur rendez-vous</span>
+            <span>Conseils personnalisés</span>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div class="stat">
+            <div class="stat-value">+10</div>
+            <div class="stat-label">Styles tendance</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">100%</div>
+            <div class="stat-label">Hygiène & soins</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value">Formations</div>
+            <div class="stat-label">Débutante à pro</div>
+          </div>
+          <div class="note">
+            Remplacez ce contenu par vos vrais chiffres et photos.
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section id="services" class="section">
+        <div class="section-title">
+          <h2>Nos services</h2>
+          <p>Un style sur mesure pour chaque cliente.</p>
+        </div>
+        <div class="card-grid">
+          <article class="card">
+            <h3>Coiffure</h3>
+            <p>Tresses, brushing, chignons, looks protecteurs.</p>
+          </article>
+          <article class="card">
+            <h3>Vente de mèches</h3>
+            <p>Mèches naturelles et synthétiques, choix premium.</p>
+          </article>
+          <article class="card">
+            <h3>Soins capillaires</h3>
+            <p>Hydratation, réparation, soins du cuir chevelu.</p>
+          </article>
+          <article class="card">
+            <h3>Formations</h3>
+            <p>Programmes courts, intensifs, certificats.</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="publications" class="section alt">
+        <div class="section-title">
+          <h2>Publications</h2>
+          <p>
+            Ajoutez vos photos et vidéos. Les exemples ci-dessous sont
+            temporaires.
+          </p>
+        </div>
+
+        <div class="publication-layout">
+          <div class="publication-form">
+            <h3>Nouvelle publication</h3>
+            <form id="postForm">
+              <label>
+                Type
+                <select name="type" required>
+                  <option value="photo">Photo</option>
+                  <option value="video">Vidéo</option>
+                </select>
+              </label>
+              <label>
+                Titre
+                <input name="title" type="text" placeholder="Ex: Tresses bohèmes" required />
+              </label>
+              <label>
+                Description
+                <textarea name="description" rows="3" placeholder="Quelques mots sur la réalisation"></textarea>
+              </label>
+              <label>
+                Lien du média (optionnel)
+                <input
+                  name="url"
+                  type="url"
+                  placeholder="https://..."
+                />
+              </label>
+              <button class="btn primary" type="submit">Ajouter</button>
+              <p class="hint">
+                Astuce: pour publier une vraie photo ou vidéo, mettez un lien
+                direct (Google Drive, Dropbox, etc.).
+              </p>
+            </form>
+          </div>
+          <div>
+            <div id="postsGrid" class="media-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="formations" class="section">
+        <div class="section-title">
+          <h2>Formations professionnelles</h2>
+          <p>Apprenez les techniques modernes avec une base traditionnelle.</p>
+        </div>
+        <div class="split">
+          <div class="card">
+            <h3>Ce que vous apprenez</h3>
+            <ul class="list">
+              <li>Installation, finition et entretien des mèches</li>
+              <li>Tresses classiques et tendances</li>
+              <li>Hygiène, relation client, tarification</li>
+            </ul>
+          </div>
+          <div class="card highlight">
+            <h3>Inscription rapide</h3>
+            <p>
+              Contactez-nous pour recevoir le programme, les tarifs et les dates
+              disponibles.
+            </p>
+            <a
+              class="btn ghost"
+              href="https://wa.me/224625385342?text=Bonjour%20je%20veux%20des%20informations%20sur%20les%20formations."
+              target="_blank"
+              rel="noopener"
+              >Demander le programme</a
+            >
+          </div>
+        </div>
+      </section>
+
+      <section id="rendezvous" class="section alt">
+        <div class="section-title">
+          <h2>Rendez-vous</h2>
+          <p>Le client choisit le service, la date et l'heure.</p>
+        </div>
+        <div class="split">
+          <div class="card">
+            <h3>Prendre un rendez-vous</h3>
+            <form id="appointmentForm">
+              <div class="form-row">
+                <label>
+                  Nom complet
+                  <input name="name" type="text" required />
+                </label>
+                <label>
+                  Téléphone WhatsApp
+                  <input name="phone" type="tel" placeholder="+224 ..." required />
+                </label>
+              </div>
+              <div class="form-row">
+                <label>
+                  Email (optionnel)
+                  <input name="email" type="email" placeholder="exemple@mail.com" />
+                </label>
+                <label>
+                  Service
+                  <select name="service" required>
+                    <option value="Coiffure">Coiffure</option>
+                    <option value="Mèches">Mèches</option>
+                    <option value="Tresses">Tresses</option>
+                    <option value="Soin">Soin capillaire</option>
+                    <option value="Formation">Formation</option>
+                    <option value="Autre">Autre</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-row">
+                <label>
+                  Date
+                  <input name="date" type="date" required />
+                </label>
+                <label>
+                  Heure
+                  <input name="time" type="time" required />
+                </label>
+              </div>
+              <label>
+                Message
+                <textarea name="message" rows="3" placeholder="Précisez votre style ou vos besoins"></textarea>
+              </label>
+              <div class="cta-row">
+                <button class="btn primary" type="submit" data-send="whatsapp">
+                  Envoyer via WhatsApp
+                </button>
+                <button class="btn ghost" type="submit" data-send="email">
+                  Envoyer par email
+                </button>
+              </div>
+              <p class="hint">
+                Email salon par défaut: contact@salon.com (à modifier dans
+                script.js).
+              </p>
+              <p class="hint">
+                Note: sans serveur, la gestion des rendez-vous reste locale sur
+                l'appareil du salon.
+              </p>
+            </form>
+          </div>
+
+          <div class="card">
+            <h3>Gestion des rendez-vous</h3>
+            <div id="appointmentList" class="list-stack"></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="contact" class="section">
+        <div class="section-title">
+          <h2>Contact</h2>
+          <p>Nous sommes basés à Yimbaya, Conakry.</p>
+        </div>
+        <div class="contact-grid">
+          <div class="card">
+            <h3>Adresse</h3>
+            <p>Yimbaya, Conakry, Guinée</p>
+            <a
+              class="text-link"
+              href="https://maps.google.com/?q=Yimbaya%2C%20Conakry"
+              target="_blank"
+              rel="noopener"
+              >Voir sur Google Maps</a
+            >
+          </div>
+          <div class="card">
+            <h3>Téléphone / WhatsApp</h3>
+            <p>+224 625 38 53 42</p>
+            <a
+              class="text-link"
+              href="https://wa.me/224625385342"
+              target="_blank"
+              rel="noopener"
+              >Écrire sur WhatsApp</a
+            >
+          </div>
+          <div class="card">
+            <h3>Réseaux sociaux</h3>
+            <p>Ajoutez vos liens Instagram et Facebook.</p>
+            <div class="social-row">
+              <a class="text-link" href="#">Instagram</a>
+              <a class="text-link" href="#">Facebook</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>Salon de Beauté • Yimbaya, Conakry</div>
+      <div>© 2026 Tous droits réservés</div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>
