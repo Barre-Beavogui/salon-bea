@@ -130,6 +130,27 @@ p {
   z-index: 1;
 }
 
+.hero-visual {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: 0 16px 40px var(--shadow);
+  display: grid;
+  gap: 12px;
+  align-content: start;
+}
+
+.hero-visual img {
+  width: 100%;
+  border-radius: 16px;
+  display: block;
+}
+
+.hero-caption {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
 .eyebrow {
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -313,6 +334,12 @@ p {
   background: transparent;
   color: var(--accent-dark);
   cursor: pointer;
+}
+
+.gallery-hint {
+  margin-top: 18px;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 .split {

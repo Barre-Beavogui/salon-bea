@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdf6ee" />
+      <stop offset="1" stop-color="#d8b38a" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" rx="48" fill="url(#g2)" />
+  <path d="M140 240c0-90 80-170 160-170h10c80 0 170 80 170 170 0 120-40 250-170 250-130 0-170-130-170-250z" fill="#f7e3cf" />
+  <path d="M120 250c40-140 330-140 360 0 20 90-10 250-90 290-80 40-180 40-250-10-70-60-60-190-20-280z" fill="#5a3724" />
+  <text x="300" y="520" font-size="32" font-family="'Manrope', sans-serif" text-anchor="middle" fill="#7b4e2d">Brushing Soyeux</text>
+</svg>

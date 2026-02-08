@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8efe6" />
+      <stop offset="1" stop-color="#e0c4a1" />
+    </linearGradient>
+  </defs>
+  <rect width="600" height="600" rx="48" fill="url(#g1)" />
+  <circle cx="300" cy="230" r="110" fill="#f7e0c8" />
+  <path d="M140 260c30-140 290-160 350 0 20 70 10 190-60 260-70 70-220 80-280 10-70-80-70-210-50-270z" fill="#2f1c12" />
+  <text x="300" y="520" font-size="32" font-family="'Manrope', sans-serif" text-anchor="middle" fill="#7b4e2d">Tresses Bohèmes</text>
+</svg>

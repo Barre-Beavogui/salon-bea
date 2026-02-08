@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7e9d9" />
+      <stop offset="1" stop-color="#c99b67" />
+    </linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b2418" />
+      <stop offset="1" stop-color="#7b4e2d" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="1000" rx="80" fill="url(#bg)" />
+  <circle cx="400" cy="320" r="140" fill="#fbe9d6" />
+  <path d="M180 380c40-170 400-170 440 0 20 80 10 230-80 320-60 60-220 80-280 10-90-100-100-250-80-330z" fill="url(#hair)" />
+  <path d="M280 320c20-40 80-40 120 0" stroke="#2b1b12" stroke-width="12" stroke-linecap="round" />
+  <path d="M400 320c20-40 80-40 120 0" stroke="#2b1b12" stroke-width="12" stroke-linecap="round" />
+  <rect x="240" y="720" width="320" height="140" rx="50" fill="#fff7ee" />
+  <text x="400" y="800" font-size="36" font-family="'Manrope', sans-serif" text-anchor="middle" fill="#7b4e2d">Style &amp; Soin</text>
+</svg>

@@ -13,28 +13,28 @@ const defaultPosts = [
     type: 'photo',
     title: 'Tresses bohèmes',
     description: 'Style léger et élégant pour toutes les occasions.',
-    url: ''
+    url: 'assets/style-1.svg'
   },
   {
     id: 'p2',
     type: 'photo',
     title: 'Brushing soyeux',
     description: 'Finition naturelle et brillante.',
-    url: ''
+    url: 'assets/style-2.svg'
   },
   {
     id: 'p3',
     type: 'video',
     title: 'Pose de mèches',
     description: 'Étapes clés, rendu final spectaculaire.',
-    url: ''
+    url: 'assets/style-4.svg'
   },
   {
     id: 'p4',
     type: 'photo',
     title: 'Chignon traditionnel',
     description: 'Un style classique revisité.',
-    url: ''
+    url: 'assets/style-3.svg'
   }
 ];
 
