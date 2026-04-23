@@ -6,14 +6,13 @@ service firebase.storage {
     }
 
     function isAdmin() {
-      return isSignedIn() && (
-        request.auth.token.email in ['eliebarresbeavogui3@gmail.com'] ||
-        request.auth.token.phone_number in ['+224629516388']
-      );
+      return isSignedIn() && request.auth.token.email in [
+        'barre.beavogui@icloud.com'
+      ];
     }
 
-    match /media/{allPaths=**} {
-      allow read: if isSignedIn();
+    match /site/{allPaths=**} {
+      allow read: if true;
       allow write: if isAdmin();
     }
   }

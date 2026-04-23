@@ -6,40 +6,55 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && (
-        request.auth.token.email in ['eliebarresbeavogui3@gmail.com'] ||
-        request.auth.token.phone_number in ['+224629516388']
-      );
+      return isSignedIn() && request.auth.token.email in [
+        'barre.beavogui@icloud.com'
+      ];
     }
 
-    match /users/{userId} {
-      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update: if isAdmin() || (isSignedIn() && request.auth.uid == userId);
-      allow delete: if isAdmin();
+    function validAppointmentCreate() {
+      return request.resource.data.keys().hasOnly([
+        'name',
+        'phone',
+        'email',
+        'service',
+        'preferredDate',
+        'message',
+        'status',
+        'source',
+        'createdAt'
+      ]) &&
+      request.resource.data.name is string &&
+      request.resource.data.name.size() > 1 &&
+      request.resource.data.phone is string &&
+      request.resource.data.phone.size() > 5 &&
+      request.resource.data.service is string &&
+      request.resource.data.service.size() > 1 &&
+      request.resource.data.status == 'Nouveau';
     }
 
-    match /posts/{postId} {
-      allow read: if isSignedIn();
+    match /galleryItems/{documentId} {
+      allow read: if true;
       allow create, update, delete: if isAdmin();
     }
 
-    match /appointments/{appointmentId} {
-      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.clientId);
-      allow create: if isSignedIn() && request.auth.uid == request.resource.data.clientId;
-      allow update: if isAdmin() || (isSignedIn() && request.auth.uid == resource.data.clientId);
-      allow delete: if isAdmin();
+    match /articles/{documentId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
-    match /threads/{threadId} {
-      allow read: if isAdmin() || (isSignedIn() && request.auth.uid == threadId);
-      allow write: if isAdmin() || (isSignedIn() && request.auth.uid == threadId);
+    match /trainings/{documentId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
 
-      match /messages/{messageId} {
-        allow read: if isAdmin() || (isSignedIn() && request.auth.uid == threadId);
-        allow create: if isAdmin() || (isSignedIn() && request.auth.uid == threadId && request.resource.data.fromUid == request.auth.uid);
-        allow update, delete: if isAdmin();
-      }
+    match /settings/{documentId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /appointments/{documentId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if validAppointmentCreate();
     }
   }
 }
