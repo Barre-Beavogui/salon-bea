@@ -443,6 +443,12 @@ p {
   gap: 18px;
 }
 
+.signature-layout,
+.testimonial-grid {
+  display: grid;
+  gap: 18px;
+}
+
 .service-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -467,6 +473,7 @@ p {
   box-shadow: var(--shadow-sm);
   display: grid;
   gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .service-item h3 {
@@ -483,6 +490,131 @@ p {
   font-size: 0.88rem;
 }
 
+.service-item:hover,
+.gallery-card:hover,
+.story-card:hover,
+.training-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(186, 111, 116, 0.2);
+}
+
+.signature-layout {
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  align-items: start;
+}
+
+.signature-story,
+.signature-aside {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 26px;
+  box-shadow: var(--shadow-sm);
+}
+
+.signature-story {
+  display: grid;
+  gap: 16px;
+}
+
+.signature-story h3,
+.signature-aside h3 {
+  font-size: 2.05rem;
+  line-height: 0.98;
+}
+
+.signature-story p,
+.signature-aside p {
+  color: var(--text-soft);
+}
+
+.signature-steps {
+  display: grid;
+  gap: 12px;
+  margin-top: 6px;
+}
+
+.signature-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.signature-step strong {
+  font-size: 1.2rem;
+  color: var(--rose-strong);
+}
+
+.signature-step span {
+  color: var(--text-soft);
+}
+
+.signature-aside {
+  display: grid;
+  gap: 14px;
+}
+
+.promise-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.promise-card {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--surface-soft);
+  border: 1px solid var(--line);
+}
+
+.promise-card strong {
+  font-size: 1rem;
+}
+
+.testimonial-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.testimonial-card {
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+.testimonial-card p {
+  color: var(--text);
+  font-size: 0.98rem;
+}
+
+.testimonial-card strong {
+  font-size: 0.98rem;
+}
+
+.testimonial-card span:last-child {
+  color: var(--text-soft);
+  font-size: 0.9rem;
+}
+
+.quote-mark {
+  display: inline-flex;
+  width: fit-content;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(186, 111, 116, 0.12);
+  color: var(--rose-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
 .gallery-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -494,6 +626,7 @@ p {
   border: 1px solid var(--line);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .gallery-media,
@@ -986,6 +1119,7 @@ textarea::placeholder {
   .booking-grid,
   .admin-entry-grid,
   .admin-grid,
+  .signature-layout,
   .detail-shell {
     grid-template-columns: 1fr;
   }
@@ -1002,7 +1136,8 @@ textarea::placeholder {
   .service-grid,
   .gallery-grid,
   .story-grid,
-  .training-grid {
+  .training-grid,
+  .testimonial-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -1023,6 +1158,7 @@ textarea::placeholder {
   .story-grid,
   .training-grid,
   .admin-entry-grid,
+  .testimonial-grid,
   .hero-stage,
   .form-grid.two,
   .segmented {
