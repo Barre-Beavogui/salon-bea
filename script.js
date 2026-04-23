@@ -142,6 +142,7 @@ const elements = {
   appointmentFeedback: document.getElementById('appointmentFeedback'),
   appointmentBoard: document.getElementById('appointmentBoard'),
   adminLoginForm: document.getElementById('adminLoginForm'),
+  adminResetBtn: document.getElementById('adminResetBtn'),
   authHint: document.getElementById('authHint'),
   adminAuthPanel: document.getElementById('adminAuthPanel'),
   adminWorkspace: document.getElementById('adminWorkspace'),
@@ -297,22 +298,61 @@ function setFeedback(element, message, tone = '') {
   }
 }
 
+function describeAuthError(error) {
+  const code = String(error?.code || error?.message || '');
+
+  if (code.includes('auth/invalid-credential') || code.includes('INVALID_LOGIN_CREDENTIALS')) {
+    return "Email ou mot de passe incorrect. Utilise 'Mot de passe oublié' pour définir un nouveau mot de passe.";
+  }
+
+  if (code.includes('auth/too-many-requests')) {
+    return 'Trop de tentatives. Attends quelques minutes puis réessaie.';
+  }
+
+  if (code.includes('auth/network-request-failed')) {
+    return 'Connexion réseau impossible. Vérifie internet puis réessaie.';
+  }
+
+  if (code.includes('auth/user-disabled')) {
+    return 'Ce compte a été désactivé dans Firebase Authentication.';
+  }
+
+  if (code.includes('auth/invalid-email')) {
+    return "L'adresse email n'est pas valide.";
+  }
+
+  return error instanceof Error ? error.message : 'Connexion impossible.';
+}
+
 function setModeUI() {
-  elements.modeBadge.textContent =
-    state.mode === 'live' ? 'Firebase connecté' : 'Mode démo local';
-  elements.modeBadge.classList.toggle('is-live', state.mode === 'live');
-  elements.modeBadge.classList.toggle('is-demo', state.mode !== 'live');
-  elements.modeCopy.textContent =
-    state.mode === 'live'
-      ? 'Les contenus sont synchronisés avec Firebase Auth, Firestore et Storage.'
-      : 'Le site reste utilisable sans configuration serveur. Ajoute ensuite tes clés Firebase pour la publication réelle.';
+  if (elements.modeBadge) {
+    elements.modeBadge.textContent =
+      state.mode === 'live' ? 'Firebase connecté' : 'Mode démo local';
+    elements.modeBadge.classList.toggle('is-live', state.mode === 'live');
+    elements.modeBadge.classList.toggle('is-demo', state.mode !== 'live');
+  }
+
+  if (elements.modeCopy) {
+    elements.modeCopy.textContent =
+      state.mode === 'live'
+        ? 'Les contenus sont synchronisés avec Firebase Auth, Firestore et Storage.'
+        : 'Le site reste utilisable sans configuration serveur. Ajoute ensuite tes clés Firebase pour la publication réelle.';
+  }
 }
 
 function setAuthUI() {
   const isLoggedIn = Boolean(state.user);
-  elements.adminAuthPanel.hidden = isLoggedIn;
-  elements.adminWorkspace.hidden = !isLoggedIn;
-  elements.adminIdentity.textContent = state.user?.email || 'Administrateur';
+  if (elements.adminAuthPanel) {
+    elements.adminAuthPanel.hidden = isLoggedIn;
+  }
+
+  if (elements.adminWorkspace) {
+    elements.adminWorkspace.hidden = !isLoggedIn;
+  }
+
+  if (elements.adminIdentity) {
+    elements.adminIdentity.textContent = state.user?.email || 'Administrateur';
+  }
 
   if (!isLoggedIn) {
     setFeedback(
@@ -328,6 +368,7 @@ function setAuthUI() {
 }
 
 function renderGallery() {
+  if (!elements.galleryGrid) return;
   elements.galleryGrid.innerHTML = state.gallery
     .map(
       (item) => `
@@ -347,6 +388,7 @@ function renderGallery() {
 }
 
 function renderArticles() {
+  if (!elements.articleGrid) return;
   elements.articleGrid.innerHTML = state.articles
     .map(
       (item) => `
@@ -375,6 +417,7 @@ function renderArticles() {
 }
 
 function renderTrainings() {
+  if (!elements.trainingGrid) return;
   elements.trainingGrid.innerHTML = state.trainings
     .map(
       (item) => `
@@ -448,6 +491,8 @@ function appointmentItemMarkup(item, withAdminActions = false) {
 }
 
 function renderAppointments() {
+  if (!elements.appointmentBoard) return;
+
   if (!state.user) {
     elements.appointmentBoard.innerHTML =
       '<div class="empty-state">Connecte-toi pour voir les demandes de rendez-vous reçues.</div>';
@@ -466,6 +511,8 @@ function renderAppointments() {
 }
 
 function renderAdminList(container, items, type) {
+  if (!container) return;
+
   if (!items.length) {
     container.innerHTML = '<div class="empty-state">Aucun élément publié pour le moment.</div>';
     return;
@@ -515,6 +562,16 @@ function renderAdminCollections() {
 }
 
 function openDetail(kind, id) {
+  if (
+    !elements.detailDialog ||
+    !elements.detailVisual ||
+    !elements.detailMeta ||
+    !elements.detailTitle ||
+    !elements.detailBody
+  ) {
+    return;
+  }
+
   const source = kind === 'article' ? state.articles : state.trainings;
   const item = source.find((entry) => entry.id === id);
   if (!item) return;
@@ -551,6 +608,8 @@ function openDetail(kind, id) {
 }
 
 function closeDetail() {
+  if (!elements.detailDialog) return;
+
   if (typeof elements.detailDialog.close === 'function') {
     elements.detailDialog.close();
   } else {
@@ -671,6 +730,11 @@ function createDemoStore() {
       storage.remove('salon_demo_session');
       emit('auth', null);
     },
+    async sendPasswordReset(email) {
+      if (email.trim().toLowerCase() !== salonConfig.demoAdminEmail.toLowerCase()) {
+        throw new Error("Cet email n'est pas autorisé pour l'administration.");
+      }
+    },
     async createItem(channel, payload) {
       const item = {
         id: createId(channel),
@@ -772,6 +836,9 @@ async function createFirebaseStore() {
     async signOut() {
       await authModule.signOut(auth);
     },
+    async sendPasswordReset(email) {
+      await authModule.sendPasswordResetEmail(auth, email.trim());
+    },
     async createItem(channel, payload) {
       await firestoreModule.addDoc(firestoreModule.collection(db, collections[channel]), {
         ...payload,
@@ -805,12 +872,23 @@ async function createFirebaseStore() {
 }
 
 function hydrateContactInfo() {
-  elements.phoneLink.textContent = salonConfig.phoneDisplay;
-  elements.phoneLink.href = `tel:${salonConfig.phoneDigits}`;
-  elements.whatsappLink.href = `https://wa.me/${salonConfig.whatsappDigits}`;
-  elements.emailLink.textContent = salonConfig.email;
-  elements.emailLink.href = `mailto:${salonConfig.email}`;
-  elements.addressText.textContent = salonConfig.address;
+  if (elements.phoneLink) {
+    elements.phoneLink.textContent = salonConfig.phoneDisplay;
+    elements.phoneLink.href = `tel:${salonConfig.phoneDigits}`;
+  }
+
+  if (elements.whatsappLink) {
+    elements.whatsappLink.href = `https://wa.me/${salonConfig.whatsappDigits}`;
+  }
+
+  if (elements.emailLink) {
+    elements.emailLink.textContent = salonConfig.email;
+    elements.emailLink.href = `mailto:${salonConfig.email}`;
+  }
+
+  if (elements.addressText) {
+    elements.addressText.textContent = salonConfig.address;
+  }
 }
 
 function handleCollection(channel, items) {
@@ -860,7 +938,9 @@ async function resolveAssetUrl(form, fileInput, urlFieldName, folder) {
 async function boot() {
   hydrateContactInfo();
   setModeUI();
-  setActiveTab(state.activeTab);
+  if (elements.segments.length) {
+    setActiveTab(state.activeTab);
+  }
 
   try {
     state.backend = hasFirebaseConfig ? await createFirebaseStore() : createDemoStore();
@@ -886,197 +966,244 @@ async function boot() {
   state.backend.subscribeAuth(handleAuthChange);
 }
 
-elements.appointmentForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const submitButton = event.submitter;
-  submitButton?.setAttribute('disabled', 'disabled');
-  setFeedback(elements.appointmentFeedback, 'Envoi en cours...');
+if (elements.appointmentForm) {
+  elements.appointmentForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submitButton = event.submitter;
+    submitButton?.setAttribute('disabled', 'disabled');
+    setFeedback(elements.appointmentFeedback, 'Envoi en cours...');
 
-  try {
-    const formData = new FormData(elements.appointmentForm);
-    await state.backend.createAppointment({
-      name: String(formData.get('name') || '').trim(),
-      phone: String(formData.get('phone') || '').trim(),
-      email: String(formData.get('email') || '').trim(),
-      service: String(formData.get('service') || '').trim(),
-      preferredDate: String(formData.get('preferredDate') || '').trim(),
-      message: String(formData.get('message') || '').trim()
-    });
+    try {
+      const formData = new FormData(elements.appointmentForm);
+      await state.backend.createAppointment({
+        name: String(formData.get('name') || '').trim(),
+        phone: String(formData.get('phone') || '').trim(),
+        email: String(formData.get('email') || '').trim(),
+        service: String(formData.get('service') || '').trim(),
+        preferredDate: String(formData.get('preferredDate') || '').trim(),
+        message: String(formData.get('message') || '').trim()
+      });
 
-    elements.appointmentForm.reset();
-    setFeedback(
-      elements.appointmentFeedback,
-      'La demande a bien été envoyée.',
-      'success'
-    );
-  } catch (error) {
-    setFeedback(
-      elements.appointmentFeedback,
-      error instanceof Error ? error.message : 'Impossible d envoyer la demande.',
-      'error'
-    );
-  } finally {
-    submitButton?.removeAttribute('disabled');
-  }
-});
+      elements.appointmentForm.reset();
+      setFeedback(
+        elements.appointmentFeedback,
+        'La demande a bien été envoyée.',
+        'success'
+      );
+    } catch (error) {
+      setFeedback(
+        elements.appointmentFeedback,
+        error instanceof Error ? error.message : 'Impossible d envoyer la demande.',
+        'error'
+      );
+    } finally {
+      submitButton?.removeAttribute('disabled');
+    }
+  });
+}
 
-elements.adminLoginForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const submitButton = event.submitter;
-  submitButton?.setAttribute('disabled', 'disabled');
-  setFeedback(elements.authHint, 'Connexion en cours...');
+if (elements.adminLoginForm) {
+  elements.adminLoginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const submitButton = event.submitter;
+    submitButton?.setAttribute('disabled', 'disabled');
+    setFeedback(elements.authHint, 'Connexion en cours...');
 
-  try {
-    const formData = new FormData(elements.adminLoginForm);
-    await state.backend.signIn(
-      String(formData.get('email') || '').trim(),
-      String(formData.get('password') || '')
-    );
-    elements.adminLoginForm.reset();
-    setFeedback(elements.authHint, '');
-  } catch (error) {
-    setFeedback(
-      elements.authHint,
-      error instanceof Error ? error.message : 'Connexion impossible.',
-      'error'
-    );
-  } finally {
-    submitButton?.removeAttribute('disabled');
-  }
-});
+    try {
+      const formData = new FormData(elements.adminLoginForm);
+      await state.backend.signIn(
+        String(formData.get('email') || '').trim(),
+        String(formData.get('password') || '')
+      );
+      elements.adminLoginForm.reset();
+      setFeedback(elements.authHint, '');
+    } catch (error) {
+      setFeedback(
+        elements.authHint,
+        describeAuthError(error),
+        'error'
+      );
+    } finally {
+      submitButton?.removeAttribute('disabled');
+    }
+  });
+}
 
-elements.logoutBtn.addEventListener('click', async () => {
-  try {
-    await state.backend.signOut();
-    setFeedback(elements.adminFlash, 'Déconnexion effectuée.', 'success');
-  } catch (error) {
-    setFeedback(
-      elements.adminFlash,
-      error instanceof Error ? error.message : 'Déconnexion impossible.',
-      'error'
-    );
-  }
-});
+if (elements.adminResetBtn && elements.adminLoginForm) {
+  elements.adminResetBtn.addEventListener('click', async () => {
+    const emailField = elements.adminLoginForm.querySelector('input[name="email"]');
+    const email = String(emailField?.value || '').trim();
+
+    if (!email) {
+      setFeedback(
+        elements.authHint,
+        "Entre d'abord l'email administrateur, puis relance la réinitialisation.",
+        'error'
+      );
+      emailField?.focus();
+      return;
+    }
+
+    elements.adminResetBtn.setAttribute('disabled', 'disabled');
+    setFeedback(elements.authHint, 'Envoi du lien de réinitialisation...');
+
+    try {
+      await state.backend.sendPasswordReset(email);
+      setFeedback(
+        elements.authHint,
+        'Lien de réinitialisation envoyé. Vérifie la boîte mail et les spams.',
+        'success'
+      );
+    } catch (error) {
+      setFeedback(elements.authHint, describeAuthError(error), 'error');
+    } finally {
+      elements.adminResetBtn.removeAttribute('disabled');
+    }
+  });
+}
+
+if (elements.logoutBtn) {
+  elements.logoutBtn.addEventListener('click', async () => {
+    try {
+      await state.backend.signOut();
+      setFeedback(elements.adminFlash, 'Déconnexion effectuée.', 'success');
+    } catch (error) {
+      setFeedback(
+        elements.adminFlash,
+        error instanceof Error ? error.message : 'Déconnexion impossible.',
+        'error'
+      );
+    }
+  });
+}
 
 elements.segments.forEach((button) => {
   button.addEventListener('click', () => setActiveTab(button.dataset.tab || 'media'));
 });
 
-elements.mediaForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  if (!state.user) return;
+if (elements.mediaForm) {
+  elements.mediaForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!state.user) return;
 
-  const submitButton = event.submitter;
-  submitButton?.setAttribute('disabled', 'disabled');
-  setFeedback(elements.adminFlash, 'Publication du média...');
+    const submitButton = event.submitter;
+    submitButton?.setAttribute('disabled', 'disabled');
+    setFeedback(elements.adminFlash, 'Publication du média...');
 
-  try {
-    const formData = new FormData(elements.mediaForm);
-    const url = await resolveAssetUrl(formData, elements.mediaFile, 'url', 'gallery');
+    try {
+      const formData = new FormData(elements.mediaForm);
+      const url = await resolveAssetUrl(formData, elements.mediaFile, 'url', 'gallery');
 
-    await state.backend.createItem('gallery', {
-      type: String(formData.get('type') || 'photo'),
-      category: String(formData.get('category') || '').trim(),
-      title: String(formData.get('title') || '').trim(),
-      description: String(formData.get('description') || '').trim(),
-      url,
-      mimeType: elements.mediaFile.files?.[0]?.type || ''
-    });
+      await state.backend.createItem('gallery', {
+        type: String(formData.get('type') || 'photo'),
+        category: String(formData.get('category') || '').trim(),
+        title: String(formData.get('title') || '').trim(),
+        description: String(formData.get('description') || '').trim(),
+        url,
+        mimeType: elements.mediaFile.files?.[0]?.type || ''
+      });
 
-    elements.mediaForm.reset();
-    setFeedback(elements.adminFlash, 'Média publié.', 'success');
-  } catch (error) {
-    setFeedback(
-      elements.adminFlash,
-      error instanceof Error ? error.message : 'Publication impossible.',
-      'error'
-    );
-  } finally {
-    submitButton?.removeAttribute('disabled');
-  }
-});
-
-elements.articleForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  if (!state.user) return;
-
-  const submitButton = event.submitter;
-  submitButton?.setAttribute('disabled', 'disabled');
-  setFeedback(elements.adminFlash, 'Publication de l article...');
-
-  try {
-    const formData = new FormData(elements.articleForm);
-    let coverUrl = String(formData.get('coverUrl') || '').trim();
-
-    if (elements.articleFile.files?.[0]) {
-      coverUrl = await state.backend.uploadFile(elements.articleFile.files[0], 'articles');
+      elements.mediaForm.reset();
+      setFeedback(elements.adminFlash, 'Média publié.', 'success');
+    } catch (error) {
+      setFeedback(
+        elements.adminFlash,
+        error instanceof Error ? error.message : 'Publication impossible.',
+        'error'
+      );
+    } finally {
+      submitButton?.removeAttribute('disabled');
     }
+  });
+}
 
-    const content = String(formData.get('content') || '').trim();
+if (elements.articleForm) {
+  elements.articleForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!state.user) return;
 
-    await state.backend.createItem('articles', {
-      category: String(formData.get('category') || '').trim(),
-      title: String(formData.get('title') || '').trim(),
-      excerpt: String(formData.get('excerpt') || '').trim(),
-      content,
-      coverUrl,
-      readTime: computeReadTime(content)
-    });
+    const submitButton = event.submitter;
+    submitButton?.setAttribute('disabled', 'disabled');
+    setFeedback(elements.adminFlash, 'Publication de l article...');
 
-    elements.articleForm.reset();
-    setFeedback(elements.adminFlash, 'Article publié.', 'success');
-  } catch (error) {
-    setFeedback(
-      elements.adminFlash,
-      error instanceof Error ? error.message : 'Publication impossible.',
-      'error'
-    );
-  } finally {
-    submitButton?.removeAttribute('disabled');
-  }
-});
+    try {
+      const formData = new FormData(elements.articleForm);
+      let coverUrl = String(formData.get('coverUrl') || '').trim();
 
-elements.trainingForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  if (!state.user) return;
+      if (elements.articleFile.files?.[0]) {
+        coverUrl = await state.backend.uploadFile(elements.articleFile.files[0], 'articles');
+      }
 
-  const submitButton = event.submitter;
-  submitButton?.setAttribute('disabled', 'disabled');
-  setFeedback(elements.adminFlash, 'Ajout de la formation...');
+      const content = String(formData.get('content') || '').trim();
 
-  try {
-    const formData = new FormData(elements.trainingForm);
-    let coverUrl = String(formData.get('coverUrl') || '').trim();
+      await state.backend.createItem('articles', {
+        category: String(formData.get('category') || '').trim(),
+        title: String(formData.get('title') || '').trim(),
+        excerpt: String(formData.get('excerpt') || '').trim(),
+        content,
+        coverUrl,
+        readTime: computeReadTime(content)
+      });
 
-    if (elements.trainingFile.files?.[0]) {
-      coverUrl = await state.backend.uploadFile(elements.trainingFile.files[0], 'trainings');
+      elements.articleForm.reset();
+      setFeedback(elements.adminFlash, 'Article publié.', 'success');
+    } catch (error) {
+      setFeedback(
+        elements.adminFlash,
+        error instanceof Error ? error.message : 'Publication impossible.',
+        'error'
+      );
+    } finally {
+      submitButton?.removeAttribute('disabled');
     }
+  });
+}
 
-    await state.backend.createItem('trainings', {
-      title: String(formData.get('title') || '').trim(),
-      audience: String(formData.get('audience') || '').trim(),
-      duration: String(formData.get('duration') || '').trim(),
-      format: String(formData.get('format') || '').trim(),
-      price: String(formData.get('price') || '').trim(),
-      nextSession: String(formData.get('nextSession') || '').trim(),
-      summary: String(formData.get('summary') || '').trim(),
-      coverUrl
-    });
+if (elements.trainingForm) {
+  elements.trainingForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!state.user) return;
 
-    elements.trainingForm.reset();
-    setFeedback(elements.adminFlash, 'Formation ajoutée.', 'success');
-  } catch (error) {
-    setFeedback(
-      elements.adminFlash,
-      error instanceof Error ? error.message : 'Ajout impossible.',
-      'error'
-    );
-  } finally {
-    submitButton?.removeAttribute('disabled');
-  }
-});
+    const submitButton = event.submitter;
+    submitButton?.setAttribute('disabled', 'disabled');
+    setFeedback(elements.adminFlash, 'Ajout de la formation...');
+
+    try {
+      const formData = new FormData(elements.trainingForm);
+      let coverUrl = String(formData.get('coverUrl') || '').trim();
+
+      if (elements.trainingFile.files?.[0]) {
+        coverUrl = await state.backend.uploadFile(elements.trainingFile.files[0], 'trainings');
+      }
+
+      await state.backend.createItem('trainings', {
+        title: String(formData.get('title') || '').trim(),
+        audience: String(formData.get('audience') || '').trim(),
+        duration: String(formData.get('duration') || '').trim(),
+        format: String(formData.get('format') || '').trim(),
+        price: String(formData.get('price') || '').trim(),
+        nextSession: String(formData.get('nextSession') || '').trim(),
+        summary: String(formData.get('summary') || '').trim(),
+        coverUrl
+      });
+
+      elements.trainingForm.reset();
+      setFeedback(elements.adminFlash, 'Formation ajoutée.', 'success');
+    } catch (error) {
+      setFeedback(
+        elements.adminFlash,
+        error instanceof Error ? error.message : 'Ajout impossible.',
+        'error'
+      );
+    } finally {
+      submitButton?.removeAttribute('disabled');
+    }
+  });
+}
 
 function bindDeleteList(container) {
+  if (!container) return;
+
   container.addEventListener('click', async (event) => {
     const button = event.target.closest('[data-delete-type]');
     if (!button || !state.user) return;
@@ -1102,48 +1229,59 @@ bindDeleteList(elements.galleryAdminList);
 bindDeleteList(elements.articleAdminList);
 bindDeleteList(elements.trainingAdminList);
 
-elements.appointmentBoard.addEventListener('click', async (event) => {
-  const button = event.target.closest('[data-appointment-action="status"]');
-  if (!button || !state.user) return;
+if (elements.appointmentBoard) {
+  elements.appointmentBoard.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-appointment-action="status"]');
+    if (!button || !state.user) return;
 
-  try {
-    await state.backend.updateAppointment(button.dataset.id || '', {
-      status: button.dataset.status || 'Confirmé'
-    });
-    setFeedback(elements.adminFlash, 'Statut mis à jour.', 'success');
-  } catch (error) {
-    setFeedback(
-      elements.adminFlash,
-      error instanceof Error ? error.message : 'Mise à jour impossible.',
-      'error'
-    );
-  }
-});
+    try {
+      await state.backend.updateAppointment(button.dataset.id || '', {
+        status: button.dataset.status || 'Confirmé'
+      });
+      setFeedback(elements.adminFlash, 'Statut mis à jour.', 'success');
+    } catch (error) {
+      setFeedback(
+        elements.adminFlash,
+        error instanceof Error ? error.message : 'Mise à jour impossible.',
+        'error'
+      );
+    }
+  });
+}
 
-elements.articleGrid.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-view="article"]');
-  if (!button) return;
-  openDetail('article', button.dataset.id || '');
-});
+if (elements.articleGrid) {
+  elements.articleGrid.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-view="article"]');
+    if (!button) return;
+    openDetail('article', button.dataset.id || '');
+  });
+}
 
-elements.trainingGrid.addEventListener('click', (event) => {
-  const button = event.target.closest('[data-view="training"]');
-  if (!button) return;
-  openDetail('training', button.dataset.id || '');
-});
+if (elements.trainingGrid) {
+  elements.trainingGrid.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-view="training"]');
+    if (!button) return;
+    openDetail('training', button.dataset.id || '');
+  });
+}
 
-elements.detailClose.addEventListener('click', closeDetail);
-elements.detailDialog.addEventListener('click', (event) => {
-  const bounds = elements.detailDialog.getBoundingClientRect();
-  const clickedOutside =
-    event.clientX < bounds.left ||
-    event.clientX > bounds.right ||
-    event.clientY < bounds.top ||
-    event.clientY > bounds.bottom;
+if (elements.detailClose) {
+  elements.detailClose.addEventListener('click', closeDetail);
+}
 
-  if (clickedOutside) {
-    closeDetail();
-  }
-});
+if (elements.detailDialog) {
+  elements.detailDialog.addEventListener('click', (event) => {
+    const bounds = elements.detailDialog.getBoundingClientRect();
+    const clickedOutside =
+      event.clientX < bounds.left ||
+      event.clientX > bounds.right ||
+      event.clientY < bounds.top ||
+      event.clientY > bounds.bottom;
+
+    if (clickedOutside) {
+      closeDetail();
+    }
+  });
+}
 
 boot();
