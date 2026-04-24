@@ -845,6 +845,29 @@ textarea::placeholder {
   gap: 12px;
 }
 
+.admin-guide {
+  display: grid;
+  gap: 14px;
+  padding: 22px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--line-dark);
+}
+
+.guide-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 10px;
+  color: rgba(244, 241, 235, 0.82);
+}
+
+.guide-note {
+  margin: 0;
+  padding: 14px 16px;
+  border: 1px dashed rgba(244, 241, 235, 0.2);
+  color: rgba(244, 241, 235, 0.72);
+}
+
 .mode-badge {
   display: inline-flex;
   width: fit-content;
@@ -891,6 +914,66 @@ textarea::placeholder {
   gap: 14px;
 }
 
+.editor-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(300px, 0.9fr);
+  gap: 18px;
+}
+
+.editor-card {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border: 1px solid var(--line-dark);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.editor-card-head {
+  display: flex;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.editor-card-head h4 {
+  margin: 0;
+  font-size: 1.32rem;
+}
+
+.editor-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(244, 241, 235, 0.14);
+  background: rgba(244, 241, 235, 0.08);
+  color: rgba(244, 241, 235, 0.82);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.editor-badge-soft {
+  background: transparent;
+}
+
+.editor-note {
+  margin: 0;
+  color: rgba(244, 241, 235, 0.7);
+}
+
+.upload-field {
+  padding: 16px;
+  border: 1px dashed rgba(244, 241, 235, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.field-note {
+  color: rgba(244, 241, 235, 0.62);
+  font-size: 0.84rem;
+  font-weight: 500;
+}
+
 .segmented {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -925,10 +1008,6 @@ textarea::placeholder {
 .stack-list {
   display: grid;
   gap: 12px;
-}
-
-.compact-list .list-item {
-  grid-template-columns: minmax(0, 1fr) auto;
 }
 
 .list-item,
@@ -979,6 +1058,33 @@ textarea::placeholder {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+}
+
+.list-item-rich {
+  grid-template-columns: 108px minmax(0, 1fr);
+  align-items: stretch;
+}
+
+.list-content {
+  display: grid;
+  gap: 10px;
+}
+
+.list-visual {
+  overflow: hidden;
+  border: 1px solid var(--line-dark);
+  min-height: 108px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.list-visual-media,
+.list-visual img,
+.list-visual video,
+.list-visual iframe {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border: 0;
 }
 
 .list-actions button,
@@ -1119,6 +1225,7 @@ textarea::placeholder {
   .booking-grid,
   .admin-entry-grid,
   .admin-grid,
+  .editor-layout,
   .signature-layout,
   .detail-shell {
     grid-template-columns: 1fr;
@@ -1161,7 +1268,8 @@ textarea::placeholder {
   .testimonial-grid,
   .hero-stage,
   .form-grid.two,
-  .segmented {
+  .segmented,
+  .list-item-rich {
     grid-template-columns: 1fr;
   }
 

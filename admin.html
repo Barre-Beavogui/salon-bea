@@ -41,9 +41,9 @@
           <p class="eyebrow">Administration</p>
           <h1>Back-office du salon</h1>
           <p>
-            Cette page est réservée à l'équipe du salon pour publier les
-            contenus, suivre les demandes et gérer les formations sans exposer
-            les outils d'administration aux clientes.
+            Cette page est réservée à l'équipe du salon. Tout est prévu pour
+            publier facilement les contenus, suivre les demandes et gérer les
+            formations sans manipulations techniques.
           </p>
         </div>
       </div>
@@ -65,6 +65,26 @@
             <div class="admin-mode">
               <span id="modeBadge" class="mode-badge">Initialisation</span>
               <p id="modeCopy">Chargement de la source de données.</p>
+            </div>
+
+            <div class="admin-guide">
+              <div class="panel-header">
+                <div>
+                  <p class="eyebrow eyebrow-small">Méthode</p>
+                  <h3>Publier en 3 étapes</h3>
+                </div>
+              </div>
+
+              <ol class="guide-list">
+                <li>Choisir l'onglet correspondant au contenu à publier.</li>
+                <li>Remplir le formulaire et sélectionner le fichier à importer.</li>
+                <li>Cliquer sur publier puis vérifier le bloc "Déjà publié".</li>
+              </ol>
+
+              <p class="guide-note">
+                Aucun lien à coller: les photos et vidéos se chargent
+                directement depuis l'appareil.
+              </p>
             </div>
 
             <div class="admin-inbox" id="boite-rendezvous">
@@ -134,141 +154,298 @@
               <p id="adminFlash" class="form-feedback" aria-live="polite"></p>
 
               <section class="tab-panel is-visible" data-panel="media">
-                <form id="mediaForm" class="editor-form">
-                  <div class="form-grid two">
-                    <label>
-                      Type de média
-                      <select name="type" required>
-                        <option value="photo">Photo</option>
-                        <option value="video">Vidéo</option>
-                      </select>
-                    </label>
-                    <label>
-                      Catégorie
-                      <input name="category" type="text" placeholder="Ex: Signature, Mariage" required />
-                    </label>
-                  </div>
+                <div class="editor-layout">
+                  <article class="editor-card">
+                    <div class="editor-card-head">
+                      <div>
+                        <p class="eyebrow eyebrow-small">Bibliothèque</p>
+                        <h4>Ajouter une photo ou une vidéo</h4>
+                      </div>
+                      <span class="editor-badge">Nouveau</span>
+                    </div>
 
-                  <label>
-                    Titre
-                    <input name="title" type="text" placeholder="Ex: Tresses boho premium" required />
-                  </label>
+                    <p class="editor-note">
+                      Import direct depuis le téléphone ou l'ordinateur.
+                    </p>
 
-                  <label>
-                    Description
-                    <textarea name="description" rows="4" placeholder="Décris le rendu, la technique ou la cliente cible."></textarea>
-                  </label>
+                    <form id="mediaForm" class="editor-form">
+                      <div class="form-grid two">
+                        <label>
+                          Type de média
+                          <select name="type" required>
+                            <option value="photo">Photo</option>
+                            <option value="video">Vidéo</option>
+                          </select>
+                        </label>
+                        <label>
+                          Catégorie
+                          <input
+                            name="category"
+                            type="text"
+                            placeholder="Ex: Signature, Mariage"
+                            required
+                          />
+                        </label>
+                      </div>
 
-                  <div class="form-grid two">
-                    <label>
-                      URL du média
-                      <input name="url" type="url" placeholder="https://..." />
-                    </label>
-                    <label>
-                      Fichier
-                      <input id="mediaFile" name="file" type="file" accept="image/*,video/*" />
-                    </label>
-                  </div>
+                      <label>
+                        Titre
+                        <input
+                          name="title"
+                          type="text"
+                          placeholder="Ex: Tresses boho premium"
+                          required
+                        />
+                      </label>
 
-                  <button class="btn btn-primary" type="submit">Publier le média</button>
-                </form>
+                      <label>
+                        Description
+                        <textarea
+                          name="description"
+                          rows="4"
+                          placeholder="Décris le rendu, la technique ou la cliente cible."
+                        ></textarea>
+                      </label>
 
-                <div id="galleryAdminList" class="stack-list compact-list"></div>
+                      <label class="upload-field">
+                        Fichier à importer
+                        <span class="field-note">
+                          Choisir une image ou une vidéo depuis l'appareil.
+                        </span>
+                        <input
+                          id="mediaFile"
+                          name="file"
+                          type="file"
+                          accept="image/*,video/*"
+                          required
+                        />
+                      </label>
+
+                      <button class="btn btn-primary" type="submit">Publier le média</button>
+                    </form>
+                  </article>
+
+                  <article class="editor-card">
+                    <div class="editor-card-head">
+                      <div>
+                        <p class="eyebrow eyebrow-small">Contenu</p>
+                        <h4>Déjà publié</h4>
+                      </div>
+                      <span class="editor-badge editor-badge-soft">Liste</span>
+                    </div>
+
+                    <p class="editor-note">
+                      Les derniers médias publiés apparaissent ici.
+                    </p>
+
+                    <div id="galleryAdminList" class="stack-list compact-list"></div>
+                  </article>
+                </div>
               </section>
 
               <section class="tab-panel" data-panel="articles" hidden>
-                <form id="articleForm" class="editor-form">
-                  <div class="form-grid two">
-                    <label>
-                      Catégorie
-                      <input name="category" type="text" placeholder="Conseil, tendance, routine" required />
-                    </label>
-                    <label>
-                      Image de couverture
-                      <input id="articleFile" name="file" type="file" accept="image/*" />
-                    </label>
-                  </div>
+                <div class="editor-layout">
+                  <article class="editor-card">
+                    <div class="editor-card-head">
+                      <div>
+                        <p class="eyebrow eyebrow-small">Rédaction</p>
+                        <h4>Nouvel article</h4>
+                      </div>
+                      <span class="editor-badge">Publication</span>
+                    </div>
 
-                  <label>
-                    Titre
-                    <input name="title" type="text" placeholder="Ex: Comment préparer ses cheveux avant la pose" required />
-                  </label>
+                    <p class="editor-note">
+                      Écris le titre, le résumé puis le contenu complet de
+                      l'article.
+                    </p>
 
-                  <label>
-                    Résumé
-                    <textarea name="excerpt" rows="3" placeholder="Résumé affiché sur la carte article." required></textarea>
-                  </label>
+                    <form id="articleForm" class="editor-form">
+                      <div class="form-grid two">
+                        <label>
+                          Catégorie
+                          <input
+                            name="category"
+                            type="text"
+                            placeholder="Conseil, tendance, routine"
+                            required
+                          />
+                        </label>
+                        <label class="upload-field">
+                          Image de couverture
+                          <span class="field-note">
+                            Optionnelle. Sinon le site utilisera son visuel par
+                            défaut.
+                          </span>
+                          <input id="articleFile" name="file" type="file" accept="image/*" />
+                        </label>
+                      </div>
 
-                  <label>
-                    Contenu complet
-                    <textarea name="content" rows="7" placeholder="Rédige l'article ici." required></textarea>
-                  </label>
+                      <label>
+                        Titre
+                        <input
+                          name="title"
+                          type="text"
+                          placeholder="Ex: Comment préparer ses cheveux avant la pose"
+                          required
+                        />
+                      </label>
 
-                  <label>
-                    URL d'image
-                    <input name="coverUrl" type="url" placeholder="https://..." />
-                  </label>
+                      <label>
+                        Résumé
+                        <textarea
+                          name="excerpt"
+                          rows="3"
+                          placeholder="Résumé affiché sur la carte article."
+                          required
+                        ></textarea>
+                      </label>
 
-                  <button class="btn btn-primary" type="submit">Publier l'article</button>
-                </form>
+                      <label>
+                        Contenu complet
+                        <textarea
+                          name="content"
+                          rows="7"
+                          placeholder="Rédige l'article ici."
+                          required
+                        ></textarea>
+                      </label>
 
-                <div id="articleAdminList" class="stack-list compact-list"></div>
+                      <button class="btn btn-primary" type="submit">Publier l'article</button>
+                    </form>
+                  </article>
+
+                  <article class="editor-card">
+                    <div class="editor-card-head">
+                      <div>
+                        <p class="eyebrow eyebrow-small">Contenu</p>
+                        <h4>Articles publiés</h4>
+                      </div>
+                      <span class="editor-badge editor-badge-soft">Liste</span>
+                    </div>
+
+                    <p class="editor-note">
+                      Les derniers articles publiés apparaissent ici.
+                    </p>
+
+                    <div id="articleAdminList" class="stack-list compact-list"></div>
+                  </article>
+                </div>
               </section>
 
               <section class="tab-panel" data-panel="trainings" hidden>
-                <form id="trainingForm" class="editor-form">
-                  <div class="form-grid two">
-                    <label>
-                      Niveau / cible
-                      <input name="audience" type="text" placeholder="Débutante, perfectionnement, pro" required />
-                    </label>
-                    <label>
-                      Durée
-                      <input name="duration" type="text" placeholder="2 jours, 4 semaines..." required />
-                    </label>
-                  </div>
+                <div class="editor-layout">
+                  <article class="editor-card">
+                    <div class="editor-card-head">
+                      <div>
+                        <p class="eyebrow eyebrow-small">Catalogue</p>
+                        <h4>Nouvelle formation</h4>
+                      </div>
+                      <span class="editor-badge">Programme</span>
+                    </div>
 
-                  <div class="form-grid two">
-                    <label>
-                      Format
-                      <input name="format" type="text" placeholder="Présentiel, coaching, intensif" required />
-                    </label>
-                    <label>
-                      Tarif
-                      <input name="price" type="text" placeholder="Ex: 850 000 GNF" required />
-                    </label>
-                  </div>
+                    <p class="editor-note">
+                      Décris simplement la formation, le niveau demandé et la
+                      prochaine session.
+                    </p>
 
-                  <div class="form-grid two">
-                    <label>
-                      Prochaine session
-                      <input name="nextSession" type="date" required />
-                    </label>
-                    <label>
-                      Visuel
-                      <input id="trainingFile" name="file" type="file" accept="image/*" />
-                    </label>
-                  </div>
+                    <form id="trainingForm" class="editor-form">
+                      <div class="form-grid two">
+                        <label>
+                          Niveau / cible
+                          <input
+                            name="audience"
+                            type="text"
+                            placeholder="Débutante, perfectionnement, pro"
+                            required
+                          />
+                        </label>
+                        <label>
+                          Durée
+                          <input
+                            name="duration"
+                            type="text"
+                            placeholder="2 jours, 4 semaines..."
+                            required
+                          />
+                        </label>
+                      </div>
 
-                  <label>
-                    Titre de la formation
-                    <input name="title" type="text" placeholder="Ex: Technique tresses premium" required />
-                  </label>
+                      <div class="form-grid two">
+                        <label>
+                          Format
+                          <input
+                            name="format"
+                            type="text"
+                            placeholder="Présentiel, coaching, intensif"
+                            required
+                          />
+                        </label>
+                        <label>
+                          Tarif
+                          <input
+                            name="price"
+                            type="text"
+                            placeholder="Ex: 850 000 GNF"
+                            required
+                          />
+                        </label>
+                      </div>
 
-                  <label>
-                    Présentation
-                    <textarea name="summary" rows="5" placeholder="Objectif, contenu, résultats attendus." required></textarea>
-                  </label>
+                      <div class="form-grid two">
+                        <label>
+                          Prochaine session
+                          <input name="nextSession" type="date" required />
+                        </label>
+                        <label class="upload-field">
+                          Visuel
+                          <span class="field-note">
+                            Optionnel. Ajoute une image si tu veux illustrer la
+                            formation.
+                          </span>
+                          <input id="trainingFile" name="file" type="file" accept="image/*" />
+                        </label>
+                      </div>
 
-                  <label>
-                    URL d'image
-                    <input name="coverUrl" type="url" placeholder="https://..." />
-                  </label>
+                      <label>
+                        Titre de la formation
+                        <input
+                          name="title"
+                          type="text"
+                          placeholder="Ex: Technique tresses premium"
+                          required
+                        />
+                      </label>
 
-                  <button class="btn btn-primary" type="submit">Ajouter la formation</button>
-                </form>
+                      <label>
+                        Présentation
+                        <textarea
+                          name="summary"
+                          rows="5"
+                          placeholder="Objectif, contenu, résultats attendus."
+                          required
+                        ></textarea>
+                      </label>
 
-                <div id="trainingAdminList" class="stack-list compact-list"></div>
+                      <button class="btn btn-primary" type="submit">Ajouter la formation</button>
+                    </form>
+                  </article>
+
+                  <article class="editor-card">
+                    <div class="editor-card-head">
+                      <div>
+                        <p class="eyebrow eyebrow-small">Contenu</p>
+                        <h4>Formations publiées</h4>
+                      </div>
+                      <span class="editor-badge editor-badge-soft">Liste</span>
+                    </div>
+
+                    <p class="editor-note">
+                      Les formations déjà visibles sur le site apparaissent ici.
+                    </p>
+
+                    <div id="trainingAdminList" class="stack-list compact-list"></div>
+                  </article>
+                </div>
               </section>
             </div>
           </div>

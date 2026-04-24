@@ -134,6 +134,13 @@ const state = {
   activeTab: 'media'
 };
 
+const adminEmails = (salonConfig.adminEmails || [salonConfig.demoAdminEmail]).map((email) =>
+  String(email).trim().toLowerCase()
+);
+
+const storageBlockedMessage =
+  "L'upload de fichiers n'est pas encore actif sur ce projet Firebase. Ouvre Firebase Console > Storage > Get Started avec un compte propriétaire du projet, puis réessaie.";
+
 const elements = {
   galleryGrid: document.getElementById('galleryGrid'),
   articleGrid: document.getElementById('articleGrid'),
@@ -321,7 +328,31 @@ function describeAuthError(error) {
     return "L'adresse email n'est pas valide.";
   }
 
+  if (
+    code.includes('permission-denied') ||
+    code.includes('insufficient permissions') ||
+    code.includes('missing or insufficient permissions')
+  ) {
+    return "Ce compte n'est pas autorisé à gérer le contenu du salon. Connecte-toi avec un compte administrateur autorisé.";
+  }
+
   return error instanceof Error ? error.message : 'Connexion impossible.';
+}
+
+function isAuthorizedAdminUser(user) {
+  const email = String(user?.email || '').trim().toLowerCase();
+  return Boolean(email) && adminEmails.includes(email);
+}
+
+function isStorageUnavailableError(error) {
+  const message = String(error?.code || error?.message || '').toLowerCase();
+  return (
+    message.includes('storage/') ||
+    message.includes('firebase storage has not been set up') ||
+    message.includes('storage bucket') ||
+    message.includes('object-not-found') ||
+    message.includes('bucket')
+  );
 }
 
 function setModeUI() {
@@ -358,7 +389,7 @@ function setAuthUI() {
     setFeedback(
       elements.authHint,
       state.mode === 'live'
-        ? 'Connecte-toi avec le compte administrateur autorisé dans Firebase Auth.'
+        ? `Connecte-toi avec un compte administrateur autorisé (${adminEmails[0]}).`
         : 'Mode démo actif. Le compte de démonstration est défini dans firebase-config.js.',
       ''
     );
@@ -514,7 +545,13 @@ function renderAdminList(container, items, type) {
   if (!container) return;
 
   if (!items.length) {
-    container.innerHTML = '<div class="empty-state">Aucun élément publié pour le moment.</div>';
+    const emptyCopy =
+      type === 'gallery'
+        ? 'Aucun média publié pour le moment.'
+        : type === 'articles'
+          ? 'Aucun article publié pour le moment.'
+          : 'Aucune formation publiée pour le moment.';
+    container.innerHTML = `<div class="empty-state">${emptyCopy}</div>`;
     return;
   }
 
@@ -532,22 +569,47 @@ function renderAdminList(container, items, type) {
           : type === 'articles'
             ? `${item.readTime || 2} min`
             : item.type || 'media';
+      const preview =
+        type === 'gallery'
+          ? mediaMarkup(item, 'list-visual-media')
+          : mediaMarkup(
+              {
+                ...item,
+                url:
+                  item.coverUrl ||
+                  item.url ||
+                  (type === 'articles' ? 'assets/hero.svg' : 'assets/style-2.svg')
+              },
+              'list-visual-media'
+            );
+      const note =
+        item.description || item.excerpt || item.summary || item.content || 'Aucun détail saisi.';
+      const metaLine =
+        type === 'articles'
+          ? `Publié le ${formatDate(item.createdAt)}`
+          : type === 'trainings'
+            ? `Session ${formatDate(item.nextSession)}`
+            : `Ajouté le ${formatDate(item.createdAt)}`;
 
       return `
-        <article class="list-item">
-          <div class="list-head">
-            <div>
-              <strong>${escapeHtml(item.title)}</strong>
-              <div class="list-meta">${escapeHtml(label || '')} · ${escapeHtml(secondary || '')}</div>
+        <article class="list-item list-item-rich">
+          <div class="list-visual">${preview}</div>
+          <div class="list-content">
+            <div class="list-head">
+              <div>
+                <strong>${escapeHtml(item.title)}</strong>
+                <div class="list-meta">${escapeHtml(label || '')} · ${escapeHtml(
+                  secondary || ''
+                )}</div>
+              </div>
             </div>
-          </div>
-          <div class="list-text">${escapeHtml(
-            item.description || item.excerpt || item.summary || item.content || ''
-          )}</div>
-          <div class="list-actions">
-            <button type="button" data-delete-type="${escapeHtml(type)}" data-id="${escapeHtml(
-              item.id
-            )}">Supprimer</button>
+            <div class="list-text">${escapeHtml(note)}</div>
+            <div class="list-meta">${escapeHtml(metaLine)}</div>
+            <div class="list-actions">
+              <button type="button" data-delete-type="${escapeHtml(type)}" data-id="${escapeHtml(
+                item.id
+              )}">Supprimer</button>
+            </div>
           </div>
         </article>
       `;
@@ -768,9 +830,7 @@ function createDemoStore() {
     },
     async uploadFile(file) {
       if (file.size > 1_800_000) {
-        throw new Error(
-          'En mode démo, utilise une URL média ou un fichier inférieur à 1.8 Mo.'
-        );
+        throw new Error('En mode démo, choisis un fichier inférieur à 1.8 Mo.');
       }
 
       return new Promise((resolve, reject) => {
@@ -907,6 +967,18 @@ function handleCollection(channel, items) {
 }
 
 function handleAuthChange(user) {
+  if (user && !isAuthorizedAdminUser(user)) {
+    state.user = null;
+    setAuthUI();
+    setFeedback(
+      elements.authHint,
+      "Ce compte n'est pas autorisé pour l'administration. Utilise un email administrateur validé pour ce salon.",
+      'error'
+    );
+    state.backend.signOut().catch(() => {});
+    return;
+  }
+
   state.user = user;
   setAuthUI();
   unsubscribeAppointments();
@@ -920,19 +992,16 @@ function handleAuthChange(user) {
   }
 }
 
-async function resolveAssetUrl(form, fileInput, urlFieldName, folder) {
+async function uploadRequiredFile(fileInput, folder) {
   const file = fileInput?.files?.[0];
-  const url = String(form.get(urlFieldName) || '').trim();
+  if (!file) throw new Error('Choisis un fichier avant de publier.');
+  return state.backend.uploadFile(file, folder);
+}
 
-  if (file) {
-    return state.backend.uploadFile(file, folder);
-  }
-
-  if (url) {
-    return url;
-  }
-
-  throw new Error('Ajoute un fichier ou une URL.');
+async function uploadOptionalFile(fileInput, folder) {
+  const file = fileInput?.files?.[0];
+  if (!file) return '';
+  return state.backend.uploadFile(file, folder);
 }
 
 async function boot() {
@@ -1092,7 +1161,16 @@ if (elements.mediaForm) {
 
     try {
       const formData = new FormData(elements.mediaForm);
-      const url = await resolveAssetUrl(formData, elements.mediaFile, 'url', 'gallery');
+      let url = '';
+
+      try {
+        url = await uploadRequiredFile(elements.mediaFile, 'gallery');
+      } catch (error) {
+        if (isStorageUnavailableError(error)) {
+          throw new Error(storageBlockedMessage);
+        }
+        throw error;
+      }
 
       await state.backend.createItem('gallery', {
         type: String(formData.get('type') || 'photo'),
@@ -1108,7 +1186,7 @@ if (elements.mediaForm) {
     } catch (error) {
       setFeedback(
         elements.adminFlash,
-        error instanceof Error ? error.message : 'Publication impossible.',
+        describeAuthError(error),
         'error'
       );
     } finally {
@@ -1128,10 +1206,15 @@ if (elements.articleForm) {
 
     try {
       const formData = new FormData(elements.articleForm);
-      let coverUrl = String(formData.get('coverUrl') || '').trim();
+      let coverUrl = '';
 
-      if (elements.articleFile.files?.[0]) {
-        coverUrl = await state.backend.uploadFile(elements.articleFile.files[0], 'articles');
+      try {
+        coverUrl = await uploadOptionalFile(elements.articleFile, 'articles');
+      } catch (error) {
+        if (isStorageUnavailableError(error)) {
+          throw new Error(storageBlockedMessage);
+        }
+        throw error;
       }
 
       const content = String(formData.get('content') || '').trim();
@@ -1150,7 +1233,7 @@ if (elements.articleForm) {
     } catch (error) {
       setFeedback(
         elements.adminFlash,
-        error instanceof Error ? error.message : 'Publication impossible.',
+        describeAuthError(error),
         'error'
       );
     } finally {
@@ -1170,10 +1253,15 @@ if (elements.trainingForm) {
 
     try {
       const formData = new FormData(elements.trainingForm);
-      let coverUrl = String(formData.get('coverUrl') || '').trim();
+      let coverUrl = '';
 
-      if (elements.trainingFile.files?.[0]) {
-        coverUrl = await state.backend.uploadFile(elements.trainingFile.files[0], 'trainings');
+      try {
+        coverUrl = await uploadOptionalFile(elements.trainingFile, 'trainings');
+      } catch (error) {
+        if (isStorageUnavailableError(error)) {
+          throw new Error(storageBlockedMessage);
+        }
+        throw error;
       }
 
       await state.backend.createItem('trainings', {
@@ -1192,7 +1280,7 @@ if (elements.trainingForm) {
     } catch (error) {
       setFeedback(
         elements.adminFlash,
-        error instanceof Error ? error.message : 'Ajout impossible.',
+        describeAuthError(error),
         'error'
       );
     } finally {
@@ -1218,7 +1306,7 @@ function bindDeleteList(container) {
     } catch (error) {
       setFeedback(
         elements.adminFlash,
-        error instanceof Error ? error.message : 'Suppression impossible.',
+        describeAuthError(error),
         'error'
       );
     }
@@ -1242,7 +1330,7 @@ if (elements.appointmentBoard) {
     } catch (error) {
       setFeedback(
         elements.adminFlash,
-        error instanceof Error ? error.message : 'Mise à jour impossible.',
+        describeAuthError(error),
         'error'
       );
     }

@@ -13,6 +13,10 @@ export const salonConfig = {
   whatsappDigits: '224629516388',
   email: 'barre.beavogui@icloud.com',
   address: 'Yimbaya, Conakry, Guinée',
+  adminEmails: [
+    'barre.beavogui@icloud.com',
+    'eliebarresbeavogui3@gmail.com'
+  ],
   demoAdminEmail: 'barre.beavogui@icloud.com',
   demoAdminPassword: 'SalonDemo2026!'
 };
